@@ -19,6 +19,16 @@ Collect device metadata and telemetry via `nvidia-smi`. Sample with timestamps a
 - For Ollama, record the model digest, context length, prompt, placement and token counts. Distinguish time to first token, prompt evaluation, token generation, and end-to-end time. Use streaming for time to first token and server counters for generation throughput.
 - For sustained workload tests, record repetitions, errors, thermal and power traces, and AC/power mode. Capture background load, test duration, and warmup with each run. Keep raw results local and publish selected, reviewed summaries with reproduction commands.
 
-## Modules as features land
+## How the MVP is organized
 
-Add application code under `forgeai/intelligence/`, `forgeai/engineering/`, and `forgeai/performance/` when each phase has working logic. Add `app.py` when an end-to-end demo can run from the repository. Phase 0 keeps executable probes under `scripts/`. Direct Python and HTTP calls are sufficient for the initial workflow. Evaluate an orchestration framework only if tool routing becomes difficult to maintain.
+| File | Responsibility |
+|---|---|
+| `forgeai/documents.py` | Decode PDF text, preserve physical pages and printed labels, and make bounded excerpts. |
+| `forgeai/retrieval.py` | Index page passages in memory and score them by cosine similarity. The keyword mode runs without numerical packages. |
+| `forgeai/ollama.py` | Call the local loopback API with a timeout, and read inference counters and model residency. |
+| `forgeai/agent.py` | Ask Ollama for cited claims or a tool call. Resolve citations to exact retrieved text and compare tool inputs with the units and values provided by the user. |
+| `forgeai/engineering.py` and `forgeai/materials.py` | Validate SI inputs, screen eligible source records, and show calculations, assumptions, and conflicts. |
+| `forgeai/performance.py` | Time the same embedding and inference code and export raw measurements. |
+| `forgeai/__main__.py` and `app.py` | Expose the same backend in the terminal and Streamlit. |
+
+Native tool calls select one registered calculation. Python checks the model's proposed name and values before it runs, then returns a structured report directly. The offline path selects tools using local rules. Quote validation proves the cited text exists on the given page. Evaluating whether each generated paraphrase follows from that quote is a separate test.
