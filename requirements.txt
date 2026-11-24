@@ -1,0 +1,5 @@
+--constraint constraints.txt
+numpy>=2.4,<3
+PyMuPDF>=1.28.2,<3
+sentence-transformers>=5.2.3,<7
+pytest>=9,<10

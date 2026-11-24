@@ -1,0 +1,37 @@
+# Python environments and build output
+.venv*/
+venv/
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.coverage
+build/
+dist/
+*.egg-info/
+
+# Local credentials, model data, and editor settings
+.env*
+!.env.example
+.tools/
+.cache/
+.ollama/
+.huggingface/
+*.safetensors
+*.gguf
+*.bin
+*.pt
+*.pth
+*.onnx
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db
+
+# Keep private inputs and hardware logs local by default
+*.pdf
+uploads/
+data/
+sample_documents/*
+!sample_documents/README.md
+experiments/raw_results/*
+!experiments/raw_results/.gitkeep
