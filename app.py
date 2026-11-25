@@ -158,7 +158,7 @@ def workspace(model: str) -> None:
         return
     collection = st.session_state.get("collection", "Indexed PDFs")
     st.caption(f"{collection} · {len(indexed.passages)} indexed passages · {indexed.mode} retrieval ({indexed.device})")
-    action = st.radio("Task", ("Engineering calculation", "Document question"), horizontal=True)
+    action = st.radio("Task", ("Engineering calculation", "Document question"), horizontal=True, key="workspace_task")
     default = DEMO_QUESTION if collection == "Synthetic fixtures" else FLAGSHIP_QUESTION
     question = st.text_area("Question", value=default if action == "Engineering calculation" else "",
                             key=f"question_{action}")
@@ -189,7 +189,8 @@ def workspace(model: str) -> None:
         except ERRORS as error:
             st.error(str(error))
     report = st.session_state.get("report")
-    if not report:
+    result_key = "tool" if action == "Engineering calculation" else "answer"
+    if not report or result_key not in report or report["input"]["question"] != question:
         return
     payload = {"input": report.get("input", {"retrieval": indexed.mode, "embedding_device": indexed.device})}
     if "tool" in report:

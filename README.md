@@ -1,72 +1,83 @@
 # ForgeAI
 
-ForgeAI is a local engineering workstation for early material screening. A manufacturing engineer can upload technical PDFs, ask a question, inspect the exact page evidence, and export a report with the inputs, calculations and assumptions. Performance Lab measures the same embedding and inference stack used by the workspace.
+ForgeAI is a local engineering workstation for preliminary material screening. Upload technical PDFs, ask a question with page-level evidence, or run a material comparison that exports its inputs, calculations and sources. Performance Lab measures the embedding and inference stack on the same workstation.
+
+![ForgeAI Engineering Workspace showing the 15 kN screening demo with CUDA semantic retrieval](docs/screenshots/workspace.jpg)
+
+## Launch
+
+Start Ollama with `qwen3:4b` available. From the repository root in PowerShell, use the existing environment.
+
+```powershell
+.\.venv\Scripts\python.exe -m streamlit run app.py --server.address 127.0.0.1 --server.port 8502 --server.headless true
+```
+
+Open [ForgeAI on port 8502](http://localhost:8502). Restart Streamlit after a source update so the process imports the current modules.
+
+For a first-time Windows x64 setup, install Python 3.14, a driver compatible with CUDA 12.8 and [Ollama](https://ollama.com/download/windows). Start Ollama and run the bootstrap below. It installs dependencies and caches the models. Use the launch command above afterward.
+
+```powershell
+.\scripts\bootstrap.ps1 -WithOllama
+.\.venv\Scripts\python.exe -m pip install -r requirements-ui.txt
+```
 
 ## Try the flagship workflow
 
-Open [ForgeAI on localhost](http://127.0.0.1:8501), load the manufacturer demo using **Semantic on CUDA**, and run the prefilled 15 kN question. Keep Ollama selection enabled to see the local model choose the calculator. The automated path below produces the same structured report:
+1. In **Engineering Workspace**, choose **Semantic on CUDA** and select **Load manufacturer demo**.
+2. Run the prefilled 15 kN question with **Have Ollama select the calculation tool** enabled. Open **Agent execution trace** to see the selection method and normalized inputs.
+3. Open **Property evidence** to inspect the manufacturer references, then use **Download report JSON** to export the calculation.
+4. In **Knowledge Base**, upload a PDF or inspect the example passages. In **Performance Lab**, inspect the saved laptop runs or run a local experiment.
+
+The demo compares a uniform 120 mm part under 15 kN of static axial tension with a safety factor of 2. Qwen3 selects an allowlisted calculation using a JSON schema. Python validates the request and units, computes net area as safety factor × force ÷ tensile yield, and ranks the candidates by estimated mass.
+
+| Candidate | Yield basis and density | Minimum net area (mm²) | Mass per length (kg/m) | Mass at 120 mm (g) |
+|---|---|---:|---:|---:|
+| Annealed Ti-6Al-4V, ASTM B348 stock under 3 in, longitudinal | 828 MPa minimum, 4,420 kg/m³ | 36.23 | 0.1601 | 19.22 |
+| 7075-T6 rod/bar | 503 MPa typical, 2,800 kg/m³ | 59.64 | 0.1670 | 20.04 |
+| 6061-T6 rod/bar | 276 MPa typical, 2,700 kg/m³ | 108.70 | 0.2935 | 35.22 |
+
+ForgeAI generates original reference PDFs for the demo and links to the corresponding pages in the manufacturer datasheets. The listed yield and density appear on pages 1 and 2 of both Kaiser sheets, and pages 2 and 1 of the TIMET sheet. [Kaiser 6061](https://online.kaiseraluminum.com/depot/PublicProductInformation/Document/1025/Kaiser_Aluminum_6061_Rod_and_Bar.pdf) · [Kaiser 7075](https://online.kaiseraluminum.com/depot/PublicProductInformation/Document/1028/Kaiser_Aluminum_7075_Rod_and_Bar.pdf) · [TIMET Ti-6Al-4V](https://www.timet.com/documents/datasheets/alpha-and-beta-alloys/timetal-6-4.pdf)
 
 ```powershell
 .\.venv\Scripts\python.exe -m forgeai flagship --retrieval cuda --model qwen3:4b --output experiments/raw_results/flagship.json
+.\.venv\Scripts\python.exe -m forgeai reference-pdfs
+.\.venv\Scripts\python.exe -m forgeai demo --through-pdf --length-mm 120
 ```
-
-The comparison sizes a uniform 120 mm part for static axial tension with a safety factor of 2. The three data cards are original ForgeAI summaries. Their numerical inputs come from the original manufacturer PDFs. The synthetic fixture remains available in Knowledge Base and through `python -m forgeai demo`.
-
-| Stock | Yield basis | Yield | Density | Original yield / density pages |
-|---|---|---:|---:|---|
-| Aluminum 6061-T6 rod/bar | Typical | 276 MPa | 2,700 kg/m³ | [Kaiser Aluminum, pp. 1 and 2](https://online.kaiseraluminum.com/depot/PublicProductInformation/Document/1025/Kaiser_Aluminum_6061_Rod_and_Bar.pdf) |
-| Aluminum 7075-T6 rod/bar | Typical | 503 MPa | 2,800 kg/m³ | [Kaiser Aluminum, pp. 1 and 2](https://online.kaiseraluminum.com/depot/PublicProductInformation/Document/1028/Kaiser_Aluminum_7075_Rod_and_Bar.pdf) |
-| Annealed Ti-6Al-4V, ASTM B348 stock, longitudinal | Minimum 0.2% offset | 828 MPa | 4,420 kg/m³ | [TIMET, pp. 2 and 1](https://www.timet.com/documents/datasheets/alpha-and-beta-alloys/timetal-6-4.pdf) |
 
 ## Architecture
 
 ```mermaid
 flowchart TD
-    PDF["Technical PDFs"] --> Parse["PyMuPDF and page metadata"]
-    Parse --> Index["MiniLM and cosine index"]
-    Index --> Evidence["Retrieved page evidence"]
-    Evidence --> Answer["Local Ollama and citation validation"]
-    Evidence --> Calc["Python screening tools"]
-    Prompt["Engineering request"] --> Plan["Local Ollama tool selection"]
-    Prompt --> Calc
+    PDF["PDFs"] --> Parse["PyMuPDF passages and pages"]
+    Parse --> Index["Keyword or MiniLM index"]
+    Index --> Evidence["Retrieved passages"]
+    Evidence --> Answer["Ollama answer and citation checks"]
+    Parse --> Properties["Validated material records"]
+    Request["Engineering request"] --> Plan["Ollama tool selection"]
+    Request --> Calc["Python calculation"]
     Plan --> Calc
-    Calc --> Report["Traceable JSON report"]
+    Properties --> Calc
+    Calc --> Report["JSON report"]
     Answer --> Report
-    Index --> Lab["Performance Lab"]
-    Answer --> Lab
 ```
 
-**Stack** Python 3.14, Streamlit, Altair, PyMuPDF, NumPy, PyTorch CUDA 12.8, Sentence Transformers MiniLM, Ollama Qwen3:4b, and NVIDIA-SMI.
-
-## Setup and launch
-
-On Windows x64, install Python 3.14, an NVIDIA driver compatible with CUDA 12.8, and [Ollama](https://ollama.com/download/windows). Start the Ollama service. Then run from the repository root in PowerShell.
-
-```powershell
-.\scripts\bootstrap.ps1 -WithOllama
-.\.venv\Scripts\python.exe -m pip install -r requirements-ui.txt
-.\.venv\Scripts\python.exe -m streamlit run app.py --server.address 127.0.0.1 --server.headless true
-```
-
-The first bootstrap downloads the embedding model and Qwen3. Subsequent document processing uses the cached model and the local Ollama endpoint. To generate actual PDF files for upload, run `python -m forgeai reference-pdfs` with the project Python. The third-party PDFs are linked from their original publishers.
+The Python and Streamlit app uses PyMuPDF, NumPy, Sentence Transformers, CUDA-enabled PyTorch, Ollama, Altair and NVIDIA-SMI. Documents and model inference stay on the workstation after the initial model downloads.
 
 ## Laptop results
 
-| Embedding batch | CUDA speedup | Maximum absolute difference |
-|---:|---:|---:|
-| 1 | 1.34× | 1.90e-7 |
-| 8 | 4.33× | 1.90e-7 |
-| 32 | 8.63× | 1.98e-7 |
+| Embedding batch | CPU texts/s | CUDA texts/s | CUDA speedup | Maximum absolute difference |
+|---:|---:|---:|---:|---:|
+| 1 | 63.37 | 84.87 | 1.34× | 1.90e-7 |
+| 8 | 145.12 | 627.73 | 4.33× | 1.90e-7 |
+| 32 | 173.62 | 1,497.98 | 8.63× | 1.98e-7 |
 
-Recorded on a Ryzen AI 7 350 and RTX 5070 Laptop GPU with driver 576.76 and PyTorch 2.11.0+cu128. Both devices processed the same 72 fixed synthetic snippets in float32, with one warmup and three timed trials per configuration. CUDA was synchronized at both timer boundaries. All three configurations passed numerical parity. The three capped Ollama trials averaged **41.59 output tokens/s** with GPU placement reported in every trial. A live replay returned the finish reason `length`, so the original capped trials are throughput measurements.
+The RTX 5070 Laptop GPU passed embedding parity at all three batch sizes. Three capped Qwen3:4b trials averaged **41.59 output tokens/s**, with GPU placement reported in each trial. The saved data describes one laptop and workload. [Benchmark method](docs/benchmarking.md) · [Raw measurements](experiments/published/) · [Validation record](docs/validation.md)
 
-See the [benchmark method](docs/benchmarking.md) and [audited trial data](experiments/published/). Diagnostic temperature, power and memory snapshots describe the hardware at collection time.
+## Limits
 
-## Limits and next steps
+- The calculator assumes ductile material and static axial loading through a uniform net area. Connections, stress concentrations, fatigue and environmental effects require separate analysis. Review supplier specifications and allowable properties for design work.
+- The calculation tools expect explicit yield and density records. Generic text PDFs support search and citations. Scanned pages and irregular tables may require preprocessing.
+- Citation checks validate the quote and page. Answer relevance can vary. In the six-query test, CUDA semantic retrieval found the expected source in the top three for 4/6 queries and keyword retrieval for 5/6.
+- The benchmark is a single-machine comparison with short trials and a fixed device order. Further evaluation should rotate the device order and expand the document and query corpus.
 
-- Screening assumes uniform, ductile, static axial loading. It omits joints, stress concentration, fatigue, and environmental derating. The results use typical aluminum yield and a condition-specific minimum titanium yield. Design approval requires applicable material specifications and allowables.
-- The comparison calculator reads explicit, unambiguous yield and density records. Generic text PDFs support search and citation. Irregular tables and scans require extraction review or preprocessing.
-- Citation checks verify exact quoted text and page provenance. The six-query retrieval evaluation is a small reference-card check, so broader retrieval and paraphrase quality need a larger held-out corpus.
-- The performance tests concern one laptop, model and workload. Future work includes order-controlled replications and expanded quality evaluations.
-
-[Validation record](docs/validation.md) · [Architecture details](docs/architecture.md) · [Product one-pager](docs/product-one-pager.md) · [Demo script](docs/demo-script.md)
+[Architecture details](docs/architecture.md) · [Product one-pager](docs/product-one-pager.md) · [Demo script](docs/demo-script.md)

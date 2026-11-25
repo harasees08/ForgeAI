@@ -1,11 +1,11 @@
 # ForgeAI demo script
 
-**Run time** About 75 seconds. Index the manufacturer cards on CUDA and open the saved Performance Lab results before recording.
+**Target length** 75–85 seconds. Before recording, open ForgeAI, load the manufacturer demo with **Semantic on CUDA**, and confirm Ollama is serving Qwen3:4b. Leave deterministic fallback unchecked. Use the saved reference results in Performance Lab so the recording shows the documented benchmark.
 
-| Time | Screen | Narration |
+| Time | On screen | Narration |
 |---:|---|---|
-| 0–12 s | Engineering Workspace and flagship prompt | Manufacturing engineers often start material selection by comparing scattered datasheets. ForgeAI brings those sources and the screening calculation into one local workspace. |
-| 12–30 s | Run the 15 kN prompt and expand the tool trace | I’m screening a 120 millimeter component under 15 kilonewtons of tension with a safety factor of two. Qwen selects an engineering tool, then Python verifies the force, units and length and computes the minimum net area and mass. |
-| 30–49 s | Compare candidates, expand evidence, show the publisher links | Each row preserves the material condition and links back to the manufacturer’s yield and density pages. The screen keeps typical aluminum values distinguishable from the titanium minimum. These results support an early comparison under a static axial-load assumption. |
-| 49–69 s | Performance Lab with grouped bars and speedup chart | The same laptop ran MiniLM on both CPU and CUDA. Across three measured trials per configuration, speedup reached 8.63 times at batch size 32. All three batch sizes passed numerical parity. The raw timing and telemetry are available to inspect. |
-| 69–77 s | Return to the report and show JSON export | The report travels with its inputs, sources and calculation trace. The PDFs, model and measurements are processed on the workstation. |
+| 0–12 s | Show Engineering Workspace and the prefilled question. | Manufacturing engineers often start a material comparison by pulling strength and density values from separate datasheets. ForgeAI brings the documents, calculations and evidence into one local workspace. |
+| 12–30 s | Select **Run**, then open **Agent execution trace**. | I'm screening a 120 millimeter part for 15 kilonewtons in tension with a safety factor of two. Qwen3 selects the comparison tool. Python verifies the inputs and units, then calculates the minimum net area and estimated mass. |
+| 30–49 s | Show the ranking, expand **Property evidence** and point to a manufacturer page. | For this simplified load case, annealed titanium comes out at 19.22 grams. The calculation preserves the stock condition and links back to the source pages. The aluminum inputs are typical values, while the titanium input is a specification minimum. |
+| 49–69 s | Switch to **Performance Lab** and show the grouped CPU and CUDA bars. | I benchmarked the same MiniLM workload on the CPU and RTX 5070 Laptop GPU. At batch size 32, CUDA reached 8.63 times the CPU throughput. The embeddings passed numerical parity at all three batch sizes. |
+| 69–80 s | Return to **Engineering Workspace** and point to **Download report JSON**. | The report includes the inputs, tool trace, page evidence and assumptions. The workflow runs on the workstation, and the underlying benchmark runs are available for inspection. |

@@ -17,3 +17,13 @@ class AppTests(unittest.TestCase):
         next(button for button in app.button if button.label == "Run").click().run()
         self.assertFalse(app.exception)
         self.assertEqual(app.dataframe[0].value.iloc[0]["Material"], "Synthetic Alloy B")
+
+        app.radio(key="workspace_task").set_value("Document question").run()
+        self.assertFalse(app.exception)
+        self.assertFalse(app.dataframe)
+
+        app.radio(key="workspace_task").set_value("Engineering calculation").run()
+        self.assertEqual(app.dataframe[0].value.iloc[0]["Material"], "Synthetic Alloy B")
+        app.text_area(key="question_Engineering calculation").set_value("Compare under 20 kN.").run()
+        self.assertFalse(app.exception)
+        self.assertFalse(app.dataframe)

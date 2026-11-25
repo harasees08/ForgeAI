@@ -2,25 +2,27 @@
 
 **Local material screening with traceable evidence and measured GPU acceleration**
 
-## Use case
+### Manufacturing use case
 
-A manufacturing engineer needs a preliminary material shortlist for a small part. Relevant values sit in separate datasheets and depend on temper, stock, size and test basis. ForgeAI brings the source pages, calculations, assumptions, and hardware measurements into one local workspace.
+An engineer comparing stock for a small part may need to find yield strength and density across multiple datasheets and keep the material condition and source attached to each result. ForgeAI brings that lookup, a preliminary sizing calculation and a shareable report into one workstation.
 
-## The demo
+### What the product demonstrates
 
-Compare rod and bar options for a 15 kN tensile load, a factor of safety of 2, and a component length of 120 mm. The reference cards document typical tensile yields from Kaiser Aluminum and the specified minimum for an annealed titanium product from TIMET. Each result includes a link to the original publisher.
-
-| Capability | What it shows |
+| Capability | Workflow |
 |---|---|
-| PDF retrieval | MiniLM embeddings on CUDA rank page passages, preserving physical page numbers and evidence. |
-| Local tool selection | Ollama selects an allowlisted tool with structured output. ForgeAI checks arguments and units against the request. |
-| Calculation and export | Python computes net area and mass and exports source references and assumptions as JSON. |
-| Performance Lab | Compare CPU and CUDA throughput at matched batch sizes, inspect numerical parity, and review GPU telemetry and LLM generation. |
+| PDF knowledge base | Extract page text with PyMuPDF. Use keyword search or CUDA-accelerated MiniLM retrieval and inspect the supporting passage. |
+| Local engineering assistant | Qwen3 selects an allowlisted tool through structured output. Python validates units, sizes each material under the same load and ranks the results. |
+| Evidence and export | Review page references, manufacturer links and calculation assumptions, then export the result as JSON. |
+| Performance Lab | Compare matched CPU/CUDA inputs, numerical parity, Qwen3 generation throughput and diagnostic GPU telemetry. |
 
-## Measured on the RTX 5070 laptop
+### Flagship example
 
-The saved run measured 1.34×, 4.33× and 8.63× CPU-to-CUDA embedding speedups at batches 1, 8 and 32. All three batches passed the stated parity tolerance. The three capped Qwen3 trials averaged 41.59 output tokens/s and each reported GPU placement. This is a single laptop configuration with a fixed synthetic benchmark corpus.
+For 15 kN of static axial tension, a safety factor of 2 and a 120 mm length, ForgeAI compares 6061-T6, 7075-T6 and annealed Ti-6Al-4V. Titanium is the lightest candidate under these inputs at **19.22 g** and **36.23 mm²** minimum net area. The example retains each material's stock condition and distinguishes typical aluminum yield from the titanium specification minimum.
 
-## Decision boundary
+### Measured laptop performance
 
-The material result is an educational static axial-tension screen. Check the actual stock specification and allowables before selecting material for a design. Connections, fatigue, stress concentration, corrosion and manufacturing yield are separate engineering checks.
+On an RTX 5070 Laptop GPU, MiniLM reached **8.63×** the CPU throughput at batch 32, with CPU/CUDA numerical parity across all three batch sizes. Three capped Qwen3:4b runs averaged **41.59 output tokens/s**. Both measurements are specific to the tested laptop and workload. [Benchmark method and data](benchmarking.md)
+
+### Scope
+
+This is an educational screen for uniform static axial tension. Evaluate actual stock allowables, joints, fatigue and other failure modes before design decisions. The knowledge base retrieves and verifies citation text. Ambiguous questions can still surface an extra source.
