@@ -29,7 +29,7 @@ try {
         }
     }
 
-    $pythonCheck = 'import platform, sys; sys.exit(sys.version_info[:2] != (3, 14) or platform.machine().lower() != "amd64" or sys.prefix == sys.base_prefix)'
+    $pythonCheck = "import platform, sys; sys.exit(sys.version_info[:2] != (3, 14) or platform.machine().lower() != 'amd64' or sys.prefix == sys.base_prefix)"
     Invoke-Checked $venvPython @("-c", $pythonCheck)
     Invoke-Checked $venvPython @(
         "-m", "pip", "install", "--index-url", "https://download.pytorch.org/whl/cu128", "torch==2.11.0+cu128"
@@ -39,8 +39,10 @@ try {
     Invoke-Checked $venvPython @("-m", "pytest", "-q")
 
     $checks = @("python", "cuda-driver", "telemetry", "pdf", "torch", "torch-cuda", "embeddings")
-    if (Test-Path -LiteralPath ".git") {
+    if ((Test-Path -LiteralPath ".git") -and (Get-Command git -ErrorAction SilentlyContinue)) {
         $checks += "git"
+    } elseif (Test-Path -LiteralPath ".git") {
+        Write-Warning "Git is missing on this terminal's PATH. Application checks will continue."
     }
     if ($WithOllama) {
         Invoke-Checked "ollama" @("pull", $OllamaModel)

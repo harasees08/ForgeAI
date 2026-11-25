@@ -3,7 +3,7 @@
 from dataclasses import dataclass
 import re
 
-from forgeai.documents import Page
+from forgeai.documents import Page, PublisherSource
 from forgeai.engineering import (
     component_mass_kg, component_volume_m3, minimum_safety_factor, positive,
     required_area_mm2, specific_yield_strength_j_kg,
@@ -22,6 +22,7 @@ class PropertySource:
     page: int
     quote: str
     synthetic: bool
+    publisher: PublisherSource | None = None
 
 
 @dataclass(frozen=True)
@@ -78,7 +79,9 @@ def extract_materials(pages: list[Page]) -> tuple[list[Material], list[str]]:
             key = name.casefold()
             record = Material(
                 name, yield_mpa, density_kg_m3,
-                PropertySource(page.document, page.number, page.text[header.start():end].strip(), page.synthetic),
+                PropertySource(
+                    page.document, page.number, page.text[header.start():end].strip(), page.synthetic, page.source,
+                ),
             )
             prior = materials.setdefault(key, record)
             if (prior.yield_mpa, prior.density_kg_m3, prior.source.synthetic) != (yield_mpa, density_kg_m3, page.synthetic):
@@ -117,6 +120,11 @@ def compare_materials(
         assumptions.append("Length was unspecified, so the mass comparison uses kilograms per metre.")
     if any(candidate.material.source.synthetic for candidate in candidates):
         assumptions.append("Synthetic records use fictional values for demonstration.")
+    if any(candidate.material.source.publisher for candidate in candidates):
+        assumptions.append(
+            "The Kaiser aluminum values are typical. The TIMET titanium value is a specified minimum for the listed "
+            "stock and condition. Verify the actual material specification and lot before using a design allowable."
+        )
     if not candidates:
         assumptions.append("No eligible material record supplied both labeled yield strength and density.")
     assumptions.extend(extraction_issues or [])

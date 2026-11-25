@@ -32,6 +32,10 @@ class SentenceEncoder:
             local_files_only=local_only, model_kwargs={"use_safetensors": True},
         )
 
+    @property
+    def device(self) -> str:
+        return str(self.model.device)
+
     def encode(self, texts: list[str], *, batch_size: int = 16):
         return self.model.encode(
             texts, batch_size=batch_size, normalize_embeddings=True,
@@ -60,6 +64,10 @@ class Index:
     @property
     def mode(self) -> str:
         return "semantic" if self.encoder else "keyword"
+
+    @property
+    def device(self) -> str:
+        return self.encoder.device if isinstance(self.encoder, SentenceEncoder) else "cpu"
 
     def _vectors(self, texts: list[str]):
         import numpy as np

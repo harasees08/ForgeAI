@@ -6,12 +6,22 @@ import re
 
 
 @dataclass(frozen=True)
+class PublisherSource:
+    publisher: str
+    url: str
+    yield_page: int
+    density_page: int
+    yield_basis: str
+
+
+@dataclass(frozen=True)
 class Page:
     document: str
     number: int
     text: str
     label: str = ""
     synthetic: bool = False
+    source: PublisherSource | None = None
 
 
 @dataclass(frozen=True)

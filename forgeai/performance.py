@@ -130,10 +130,12 @@ def benchmark_ollama(model: str) -> dict:
     ]
     return {
         "utc": timestamp(), "model": model, "prompt": BENCHMARK_PROMPT,
+        "server_version": ollama._request("version").get("version"),
         "telemetry_after": telemetry_check(),
         "warmup_seconds": warmup.wall_seconds,
         "seconds_summary": summarize([item["metrics"]["wall_seconds"] for item in runs]),
         "output_rate_summary": summarize(rates) if rates else None,
+        "output_limit_trials": sum(item["metrics"]["done_reason"] == "length" for item in runs),
         "timing_scope": "Wall time includes the HTTP request; generation throughput uses Ollama eval counters.",
         "runs": runs,
     }

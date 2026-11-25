@@ -23,6 +23,7 @@ class ChatResponse:
     output_tokens: int | None
     output_tokens_per_second: float | None
     load_ns: int | None
+    done_reason: str | None = None
 
 
 class Ollama:
@@ -52,7 +53,7 @@ class Ollama:
         return result
 
     def chat(self, messages: list[dict], *, schema: dict | None = None,
-             tools: list[dict] | None = None) -> ChatResponse:
+             tools: list[dict] | None = None, num_predict: int = 500) -> ChatResponse:
         if not self._verified_local:
             details = self._request("show", {"model": self.model})
             if details.get("remote_host") or details.get("remote_model"):
@@ -61,7 +62,7 @@ class Ollama:
         payload = {
             "model": self.model, "messages": messages, "stream": False,
             "think": False, "keep_alive": "1m",
-            "options": {"temperature": 0, "seed": 42, "num_ctx": 4096, "num_predict": 500},
+            "options": {"temperature": 0, "seed": 42, "num_ctx": 4096, "num_predict": num_predict},
         }
         if schema is not None:
             payload["format"] = schema
@@ -78,6 +79,7 @@ class Ollama:
         return ChatResponse(
             message, wall_seconds, result.get("prompt_eval_count"), tokens,
             tokens * 1e9 / eval_ns if tokens is not None and eval_ns else None, result.get("load_duration"),
+            result.get("done_reason"),
         )
 
     def models(self) -> list[dict]:
