@@ -1,0 +1,53 @@
+{
+  "requested_interval_seconds": 0.5,
+  "samples": [
+    {
+      "utc": "2026-11-25T21:18:19.618737+00:00",
+      "gpus": [
+        {
+          "gpu": "NVIDIA GeForce RTX 5070 Laptop GPU",
+          "driver": "576.76",
+          "compute_capability": "12.0",
+          "vram_total_mib": 8151.0,
+          "vram_free_mib": 7056.0,
+          "gpu_utilization_pct": 15.0,
+          "temperature_c": 43.0,
+          "sm_clock_mhz": 315.0,
+          "power_w": 11.53
+        }
+      ]
+    },
+    {
+      "utc": "2026-11-25T21:18:20.220716+00:00",
+      "gpus": [
+        {
+          "gpu": "NVIDIA GeForce RTX 5070 Laptop GPU",
+          "driver": "576.76",
+          "compute_capability": "12.0",
+          "vram_total_mib": 8151.0,
+          "vram_free_mib": 7056.0,
+          "gpu_utilization_pct": 15.0,
+          "temperature_c": 43.0,
+          "sm_clock_mhz": 315.0,
+          "power_w": 11.34
+        }
+      ]
+    },
+    {
+      "utc": "2026-11-25T21:18:20.847004+00:00",
+      "gpus": [
+        {
+          "gpu": "NVIDIA GeForce RTX 5070 Laptop GPU",
+          "driver": "576.76",
+          "compute_capability": "12.0",
+          "vram_total_mib": 8151.0,
+          "vram_free_mib": 7056.0,
+          "gpu_utilization_pct": 15.0,
+          "temperature_c": 43.0,
+          "sm_clock_mhz": 315.0,
+          "power_w": 11.43
+        }
+      ]
+    }
+  ]
+}

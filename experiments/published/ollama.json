@@ -1,0 +1,81 @@
+{
+  "utc": "2026-11-25T21:17:03.637887+00:00",
+  "model": "qwen3:4b",
+  "prompt": "In two short sentences, explain tensile stress and give its formula.",
+  "telemetry_after": [
+    {
+      "gpu": "NVIDIA GeForce RTX 5070 Laptop GPU",
+      "driver": "576.76",
+      "compute_capability": "12.0",
+      "vram_total_mib": 8151.0,
+      "vram_free_mib": 4029.0,
+      "gpu_utilization_pct": 100.0,
+      "temperature_c": 50.0,
+      "sm_clock_mhz": 315.0,
+      "power_w": 29.72
+    }
+  ],
+  "warmup_seconds": 16.79915659999824,
+  "seconds_summary": {
+    "mean": 12.093978000009278,
+    "sample_stddev": 0.03779552094138598
+  },
+  "output_rate_summary": {
+    "mean": 41.589225928721625,
+    "sample_stddev": 0.18578568807245344
+  },
+  "timing_scope": "Wall time includes the HTTP request; generation throughput uses Ollama eval counters.",
+  "runs": [
+    {
+      "metrics": {
+        "wall_seconds": 12.051545099995565,
+        "prompt_tokens": 24,
+        "output_tokens": 500,
+        "output_tokens_per_second": 41.78101433941124,
+        "load_ns": 15421000
+      },
+      "placement": {
+        "status": "GPU",
+        "model": "qwen3:4b",
+        "digest": "359d7dd4bcdab3d86b87d73ac27966f4dbb9f5efdfcc75d34a8764a09474fae7",
+        "vram_bytes": 3180247121,
+        "loaded_bytes": 3180247121,
+        "context_length": 4096
+      }
+    },
+    {
+      "metrics": {
+        "wall_seconds": 12.106357700016815,
+        "prompt_tokens": 24,
+        "output_tokens": 500,
+        "output_tokens_per_second": 41.57657369618152,
+        "load_ns": 12502900
+      },
+      "placement": {
+        "status": "GPU",
+        "model": "qwen3:4b",
+        "digest": "359d7dd4bcdab3d86b87d73ac27966f4dbb9f5efdfcc75d34a8764a09474fae7",
+        "vram_bytes": 3180247121,
+        "loaded_bytes": 3180247121,
+        "context_length": 4096
+      }
+    },
+    {
+      "metrics": {
+        "wall_seconds": 12.124031200015452,
+        "prompt_tokens": 24,
+        "output_tokens": 500,
+        "output_tokens_per_second": 41.41008975057212,
+        "load_ns": 7955100
+      },
+      "placement": {
+        "status": "GPU",
+        "model": "qwen3:4b",
+        "digest": "359d7dd4bcdab3d86b87d73ac27966f4dbb9f5efdfcc75d34a8764a09474fae7",
+        "vram_bytes": 3180247121,
+        "loaded_bytes": 3180247121,
+        "context_length": 4096
+      }
+    }
+  ]
+}
